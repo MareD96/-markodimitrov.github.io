@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marko Dimitrov — Mechanical Design Engineer</title>
+<meta name="description" content="Marko Dimitrov — Mechanical Design Engineer. 5+ years of CAD-driven product development: molds, sheet metal, e-motor components, RTM tooling, FEA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF0EE;
+  --sheet:#FAFAF7;
+  --ink:#181B1F;
+  --mid:#59636D;
+  --line:#C9CED2;
+  --line-soft:#DEE2E4;
+  --red:#C0361B;          /* checker's red pen */
+  --red-soft:#F5E4DF;
+  --frame:2px solid var(--ink);
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sans:'IBM Plex Sans',system-ui,sans-serif;
+  --disp:'Big Shoulders Display',var(--sans);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--red);color:#fff}
+
+/* ---------- drawing sheet ---------- */
+.sheet{
+  max-width:1180px;
+  margin:22px auto 60px;
+  background:var(--sheet);
+  border:var(--frame);
+  position:relative;
+  box-shadow:0 1px 0 var(--line),0 14px 40px rgba(24,27,31,.08);
+}
+/* zone ticks on the frame, like an ISO drawing border */
+.zones{position:absolute;inset:0;pointer-events:none;font-family:var(--mono);font-size:10px;color:var(--mid)}
+.zones span{position:absolute}
+.zones .top{top:-16px}.zones .bot{bottom:-16px}
+.zones .lft{left:-14px}.zones .rgt{right:-14px}
+.z1{left:12.5%}.z2{left:37.5%}.z3{left:62.5%}.z4{left:87.5%}
+.zA{top:10%}.zB{top:35%}.zC{top:60%}.zD{top:85%}
+.tickline-t,.tickline-b{position:absolute;left:0;right:0;height:0;border-top:1px solid transparent}
+
+/* ---------- nav ---------- */
+nav{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;gap:0;
+  background:var(--sheet);
+  border-bottom:var(--frame);
+  font-family:var(--mono);font-size:12px;letter-spacing:.06em;
+  overflow-x:auto;
+}
+nav .brand{
+  padding:14px 20px;font-weight:600;border-right:var(--frame);white-space:nowrap;
+  color:var(--ink);text-decoration:none;
+}
+nav .brand b{color:var(--red)}
+nav a.item{
+  padding:14px 16px;color:var(--mid);text-decoration:none;white-space:nowrap;
+  border-right:1px solid var(--line-soft);
+  transition:color .15s,background .15s;
+}
+nav a.item:hover,nav a.item:focus-visible{color:var(--ink);background:var(--red-soft)}
+nav a:focus-visible{outline:2px solid var(--red);outline-offset:-2px}
+nav .spacer{flex:1}
+nav .cta{
+  padding:14px 18px;color:#fff;background:var(--ink);text-decoration:none;white-space:nowrap;
+  border-left:var(--frame);
+}
+nav .cta:hover{background:var(--red)}
+
+/* ---------- hero ---------- */
+header.hero{padding:64px 48px 0;border-bottom:var(--frame)}
+.eyebrow{
+  font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--red);
+  text-transform:uppercase;display:flex;align-items:center;gap:12px;
+}
+.eyebrow::after{content:"";flex:0 0 90px;height:1px;background:var(--red)}
+h1{
+  font-family:var(--disp);font-weight:800;
+  font-size:clamp(56px,10vw,124px);
+  line-height:.92;letter-spacing:.005em;text-transform:uppercase;
+  margin:14px 0 6px;
+}
+.role{
+  font-family:var(--mono);font-size:clamp(13px,1.6vw,16px);color:var(--mid);
+  letter-spacing:.04em;margin-bottom:34px;
+}
+.role em{font-style:normal;color:var(--ink);border-bottom:2px solid var(--red)}
+.hero-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:48px;padding-bottom:44px}
+.notes h2{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mid);text-transform:uppercase;margin-bottom:10px}
+.notes p{max-width:62ch;color:#2A3037}
+.dims{display:flex;flex-direction:column;gap:0;border-left:1px solid var(--line)}
+.dim{
+  padding:14px 0 14px 22px;position:relative;border-bottom:1px solid var(--line-soft);
+}
+.dim:last-child{border-bottom:none}
+.dim::before{content:"";position:absolute;left:-4px;top:50%;width:7px;height:7px;background:var(--red);transform:translateY(-50%) rotate(45deg)}
+.dim .num{font-family:var(--disp);font-weight:700;font-size:40px;line-height:1}
+.dim .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--mid);text-transform:uppercase}
+
+/* ISO 7200-style title block */
+.titleblock{
+  display:grid;grid-template-columns:repeat(6,1fr);
+  border-top:var(--frame);
+  font-family:var(--mono);font-size:11px;
+  margin:0 -48px;
+}
+.tb{padding:10px 14px;border-right:1px solid var(--line)}
+.tb:last-child{border-right:none}
+.tb .k{display:block;font-size:9px;letter-spacing:.12em;color:var(--mid);text-transform:uppercase}
+.tb .v{font-weight:600;font-size:12px}
+.tb .v a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--red)}
+.tb .v a:hover{color:var(--red)}
+
+/* ---------- sections ---------- */
+section{padding:56px 48px;border-bottom:var(--frame)}
+section:last-of-type{border-bottom:none}
+.sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:34px}
+.sec-zone{
+  font-family:var(--mono);font-size:12px;font-weight:600;color:#fff;background:var(--ink);
+  padding:4px 10px;letter-spacing:.1em;
+}
+.sec-title{font-family:var(--disp);font-weight:700;font-size:clamp(30px,4.5vw,46px);text-transform:uppercase;letter-spacing:.01em}
+.sec-note{font-family:var(--mono);font-size:11px;color:var(--mid);margin-left:auto;text-align:right}
+
+/* experience — revision table */
+.rev-table{border:var(--frame)}
+.rev{display:grid;grid-template-columns:110px 1fr;border-bottom:1px solid var(--line)}
+.rev:last-child{border-bottom:none}
+.rev-mark{
+  border-right:1px solid var(--line);padding:22px 16px;text-align:center;
+  font-family:var(--mono);
+}
+.rev-mark .ltr{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:38px;height:38px;border:2px solid var(--red);border-radius:50%;
+  color:var(--red);font-weight:600;font-size:16px;
+}
+.rev-mark .yrs{display:block;font-size:10px;color:var(--mid);margin-top:10px;letter-spacing:.05em}
+.rev-body{padding:20px 26px 22px}
+.rev-body h3{font-family:var(--disp);font-weight:700;font-size:26px;text-transform:uppercase;letter-spacing:.02em}
+.rev-body .org{font-family:var(--mono);font-size:12px;color:var(--red);margin:2px 0 12px;letter-spacing:.05em}
+.rev-body ul{list-style:none}
+.rev-body li{padding-left:20px;position:relative;margin-bottom:7px;color:#2A3037;max-width:78ch}
+.rev-body li::before{content:"—";position:absolute;left:0;color:var(--red)}
+.tags{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;border:1px solid var(--line);padding:3px 9px;color:var(--mid);background:var(--sheet)}
+
+/* projects */
+.proj{border:var(--frame);margin-bottom:34px}
+.proj-head{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 18px;
+  padding:16px 24px;border-bottom:1px solid var(--line);background:var(--paper);
+}
+.proj-no{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--red)}
+.proj-head h3{font-family:var(--disp);font-weight:700;font-size:clamp(22px,3vw,30px);text-transform:uppercase}
+.proj-meta{font-family:var(--mono);font-size:11px;color:var(--mid);margin-left:auto}
+.proj-body{display:grid;grid-template-columns:1.05fr 1fr;gap:0}
+.proj-text{padding:24px 28px;border-right:1px solid var(--line)}
+.proj-text p{color:#2A3037;margin-bottom:12px;max-width:66ch}
+.proj-text h4{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--mid);margin:16px 0 6px}
+.proj-link{
+  display:inline-block;margin-top:8px;font-family:var(--mono);font-size:12px;
+  color:var(--ink);text-decoration:none;border-bottom:2px solid var(--red);padding-bottom:1px;
+}
+.proj-link:hover{color:var(--red)}
+.proj-gallery{padding:20px;display:grid;gap:14px;align-content:start}
+.g2{grid-template-columns:1fr 1fr}
+.fig{margin:0}
+.fig button{
+  display:block;width:100%;border:1px solid var(--line);padding:0;background:#fff;cursor:zoom-in;
+}
+.fig button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.fig img{display:block;width:100%;height:auto}
+.fig figcaption{
+  font-family:var(--mono);font-size:10.5px;color:var(--mid);padding:7px 2px 0;line-height:1.45;
+}
+.fig figcaption::before{content:"FIG. ";color:var(--red);font-weight:600}
+.span2{grid-column:1/-1}
+
+/* skills — parts list */
+.bom{width:100%;border:var(--frame);border-collapse:collapse;font-size:14px}
+.bom th{
+  font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  text-align:left;padding:10px 16px;background:var(--ink);color:#fff;font-weight:500;
+}
+.bom td{padding:13px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.bom tr:last-child td{border-bottom:none}
+.bom .it{font-family:var(--mono);font-size:12px;color:var(--red);white-space:nowrap}
+.bom .cat{font-weight:600;white-space:nowrap}
+.bom .desc{color:#2A3037}
+
+/* education + pubs */
+.edu-grid{display:grid;grid-template-columns:1fr 1fr;gap:34px}
+.edu-item{border-left:2px solid var(--red);padding:2px 0 2px 18px;margin-bottom:22px}
+.edu-item h3{font-family:var(--disp);font-weight:700;font-size:22px;text-transform:uppercase}
+.edu-item .where{color:#2A3037}
+.edu-item .when{font-family:var(--mono);font-size:11px;color:var(--mid);letter-spacing:.05em}
+.pub{border:1px solid var(--line);padding:16px 18px;margin-bottom:14px;font-size:14px;color:#2A3037}
+.pub .conf{font-family:var(--mono);font-size:11px;color:var(--red);display:block;margin-top:6px}
+.smallnote{font-family:var(--mono);font-size:11px;color:var(--mid);margin-top:16px}
+.smallnote b{color:var(--ink)}
+
+/* contact */
+.contact{background:var(--ink);color:#fff}
+.contact .sec-title{color:#fff}
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2px;background:#3A4148;border:1px solid #3A4148}
+.contact-cell{background:var(--ink);padding:26px 24px}
+.contact-cell .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#9AA4AD;text-transform:uppercase;display:block;margin-bottom:8px}
+.contact-cell a{color:#fff;text-decoration:none;font-family:var(--mono);font-size:14px;border-bottom:1px solid var(--red)}
+.contact-cell a:hover{color:var(--red)}
+.contact-cell .plain{font-family:var(--mono);font-size:14px}
+footer{
+  padding:16px 48px;font-family:var(--mono);font-size:10.5px;color:#9AA4AD;
+  background:var(--ink);border-top:1px solid #3A4148;
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+}
+
+/* lightbox */
+.lb{
+  position:fixed;inset:0;background:rgba(18,20,23,.92);z-index:100;
+  display:none;align-items:center;justify-content:center;padding:32px;cursor:zoom-out;
+}
+.lb.open{display:flex}
+.lb img{max-width:min(1100px,94vw);max-height:82vh;border:2px solid #fff;background:#fff}
+.lb .cap{
+  position:absolute;bottom:26px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:12px;color:#fff;max-width:90vw;text-align:center;
+}
+.lb .x{
+  position:absolute;top:18px;right:22px;font-family:var(--mono);font-size:13px;color:#fff;
+  background:none;border:1px solid #fff;padding:6px 12px;cursor:pointer;
+}
+.lb .x:hover{background:var(--red);border-color:var(--red)}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+
+@media(max-width:900px){
+  .hero-grid,.proj-body,.edu-grid{grid-template-columns:1fr}
+  .proj-text{border-right:none;border-bottom:1px solid var(--line)}
+  .titleblock{grid-template-columns:repeat(3,1fr)}
+  .tb{border-bottom:1px solid var(--line)}
+  header.hero,section{padding-left:24px;padding-right:24px}
+  .titleblock{margin:0 -24px}
+  footer{padding:16px 24px}
+  .zones{display:none}
+  .sheet{margin:0 0 40px;border-left:none;border-right:none}
+  .dims{border-left:none}
+  .dim{padding-left:18px}
+}
+@media(max-width:560px){
+  .g2{grid-template-columns:1fr}
+  .rev{grid-template-columns:1fr}
+  .rev-mark{border-right:none;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:14px;padding:14px 20px;text-align:left}
+  .rev-mark .yrs{margin-top:0}
+  .titleblock{grid-template-columns:repeat(2,1fr)}
+  .sec-note{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="zones" aria-hidden="true">
+    <span class="top z1">1</span><span class="top z2">2</span><span class="top z3">3</span><span class="top z4">4</span>
+    <span class="bot z1">1</span><span class="bot z2">2</span><span class="bot z3">3</span><span class="bot z4">4</span>
+    <span class="lft zA">A</span><span class="lft zB">B</span><span class="lft zC">C</span><span class="lft zD">D</span>
+    <span class="rgt zA">A</span><span class="rgt zB">B</span><span class="rgt zC">C</span><span class="rgt zD">D</span>
+  </div>
+
+  <nav aria-label="Main navigation">
+    <a class="brand" href="#top">M.DIMITROV<b>/</b>MDE</a>
+    <a class="item" href="#experience">EXPERIENCE</a>
+    <a class="item" href="#projects">PROJECTS</a>
+    <a class="item" href="#skills">SKILLS</a>
+    <a class="item" href="#education">EDUCATION</a>
+    <span class="spacer"></span>
+    <a class="cta" href="#contact">CONTACT →</a>
+  </nav>
+
+  <header class="hero" id="top">
+    <p class="eyebrow">Engineering portfolio · Drawing no. MD-2026-01</p>
+    <h1>Marko<br>Dimitrov</h1>
+    <p class="role">MECHANICAL DESIGN ENGINEER — <em>product development</em> / <em>R&amp;D</em> / <em>tooling &amp; mold design</em></p>
+
+    <div class="hero-grid">
+      <div class="notes rv">
+        <h2>General notes</h2>
+        <p>Mechanical Design Engineer with 5+ years of CAD-driven product development across the automotive, industrial and consumer-appliance sectors. Hands-on expertise in 3D modeling, complex mechanical component design, GD&amp;T documentation and the full product lifecycle — from marketing requirements and concept design through validation, BOM management and industrialization. Strong academic foundation in machine elements, kinematics and structural/thermal FEA, with a growing focus on machine design, special-purpose machinery and robotics.</p>
+      </div>
+      <div class="dims rv">
+        <div class="dim"><span class="num">5+</span><span class="lbl">Years in CAD-driven product development</span></div>
+        <div class="dim"><span class="num">60+</span><span class="lbl">Precision molds &amp; tooling projects designed</span></div>
+        <div class="dim"><span class="num">40</span><span class="lbl">Finished goods covered on current cylinder platform</span></div>
+      </div>
+    </div>
+
+    <div class="titleblock" aria-label="Title block">
+      <div class="tb"><span class="k">Drawn by</span><span class="v">M. Dimitrov</span></div>
+      <div class="tb"><span class="k">Location</span><span class="v">Pirot, Serbia</span></div>
+      <div class="tb"><span class="k">Status</span><span class="v">Open to EU relocation</span></div>
+      <div class="tb"><span class="k">Languages</span><span class="v">SR native · EN C1</span></div>
+      <div class="tb"><span class="k">Scale</span><span class="v">1:1</span></div>
+      <div class="tb"><span class="k">Contact</span><span class="v"><a href="mailto:marko.dimitrov96@gmail.com">e-mail</a></span></div>
+    </div>
+  </header>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="sec-head">
+      <span class="sec-zone">A1</span>
+      <h2 class="sec-title">Professional experience</h2>
+      <span class="sec-note">REVISION HISTORY · 2020 → PRESENT</span>
+    </div>
+
+    <div class="rev-table">
+      <article class="rev rv">
+        <div class="rev-mark"><span class="ltr">C</span><span class="yrs">04/2024 — PRESENT</span></div>
+        <div class="rev-body">
+          <h3>R&amp;D Design Specialist</h3>
+          <p class="org">ARISTON GROUP</p>
+          <ul>
+            <li>End-to-end product development: translating marketing requirements into mechanical concepts, in collaboration with international R&amp;D teams (Italy HQ) and manufacturing engineers.</li>
+            <li>3D models and 2D technical drawings for purchased, semi-finished and finished components — ~40 finished goods across the cylinder platform plus 12 buffer products.</li>
+            <li>Sheet metal design: flat pattern development, 2D/3D laser-cutting preparation and thin-wall tube bending, adapted to in-house manufacturing capabilities.</li>
+            <li>BOM creation and management in SAP; product lifecycle management in Dassault Systèmes 3DEXPERIENCE.</li>
+            <li>Active role in R&amp;D lab validation and industrialization, coordinating design feedback between R&amp;D and production.</li>
+          </ul>
+          <div class="tags"><span class="tag">SOLIDWORKS</span><span class="tag">3DEXPERIENCE</span><span class="tag">SAP</span><span class="tag">SHEET METAL</span></div>
+        </div>
+      </article>
+
+      <article class="rev rv">
+        <div class="rev-mark"><span class="ltr">B</span><span class="yrs">05/2023 — 04/2024</span></div>
+        <div class="rev-body">
+          <h3>Series Product Engineer — e-Motor</h3>
+          <p class="org">ZF GROUP</p>
+          <ul>
+            <li>Technical support for serial production of electric-motor components in an automotive environment.</li>
+            <li>Cross-functional collaboration with quality, production, customers and suppliers; technical risk evaluation and root-cause analysis of product deviations.</li>
+            <li>Creation and maintenance of product technical documentation: CAD models, engineering drawings and material assemblies.</li>
+          </ul>
+          <div class="tags"><span class="tag">E-MOTOR</span><span class="tag">ROOT CAUSE ANALYSIS</span><span class="tag">SERIAL PRODUCTION</span></div>
+        </div>
+      </article>
+
+      <article class="rev rv">
+        <div class="rev-mark"><span class="ltr">A</span><span class="yrs">11/2020 — 05/2023</span></div>
+        <div class="rev-body">
+          <h3>Mold Designer</h3>
+          <p class="org">MICHELIN (TIGAR TYRES)</p>
+          <ul>
+            <li>Designed 50+ precision molds for passenger-car tires and 10+ specialized rubber-product molds in Siemens NX and Autodesk Inventor — tight geometric tolerances and complex 3D surface modeling.</li>
+            <li>Resolved post-prototype engineering issues on custom tooling, developing individual solutions for non-standard geometries and material behavior.</li>
+            <li>2D documentation in AutoCAD, NX and Inventor; managed the documentation database in Autodesk Vault and led its migration to Teamcenter PLM.</li>
+          </ul>
+          <div class="tags"><span class="tag">SIEMENS NX</span><span class="tag">INVENTOR</span><span class="tag">TEAMCENTER</span><span class="tag">MOLD DESIGN</span></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="sec-head">
+      <span class="sec-zone">B1</span>
+      <h2 class="sec-title">Selected projects</h2>
+      <span class="sec-note">CLICK ANY FIGURE TO ENLARGE</span>
+    </div>
+
+    <!-- 01 Tire molds -->
+    <article class="proj rv">
+      <div class="proj-head">
+        <span class="proj-no">DWG 01</span>
+        <h3>Tire Curing Molds &amp; Bladder Tooling</h3>
+        <span class="proj-meta">MICHELIN (TIGAR TYRES) · 2020–2023 · SIEMENS NX</span>
+      </div>
+      <div class="proj-body">
+        <div class="proj-text">
+          <h4>Passenger-car tire molds (14"–20")</h4>
+          <p>Built fully parametric master models of tire curing molds in Siemens NX. Each mold family was driven by expression tables, so a single master model generated the complete 14"–20" size range from a spreadsheet-linked parameter set. Managed configuration and revision control across shared and size-specific components — first in Autodesk Vault, then leading the migration to Teamcenter PLM.</p>
+          <h4>Curing bladder tooling</h4>
+          <p>The bladder tooling — used to form the butyl-rubber curing bladder — is structurally more complex than the tire molds themselves and had historically been designed as 2D AutoCAD drawings. I moved this workflow into NX using a top-down parametric assembly driven by a controlling skeleton, which noticeably shortened the design cycle for each new tooling variant.</p>
+        </div>
+        <div class="proj-gallery g2">
+          <figure class="fig span2"><button type="button" data-cap="Cross-section of an assembled tire mold: tread ring, sidewall segments and container assembly."><img src="images/image2.jpg" alt="Cross-section of an assembled tire curing mold" loading="lazy"></button><figcaption>Assembled tire mold cross-section — tread ring, sidewalls, container.</figcaption></figure>
+          <figure class="fig"><button type="button" data-cap="NX Expressions table: mold dimensions across the 14&quot;–20&quot; range driven from a single parameter set."><img src="images/image1.jpg" alt="Siemens NX expressions table driving mold dimensions" loading="lazy"></button><figcaption>NX expressions — one parameter set drives all sizes.</figcaption></figure>
+          <figure class="fig"><button type="button" data-cap="Cross-section of the bladder tooling assembly, highlighting the cavity path that forms the bladder (passenger car)."><img src="images/image3.jpg" alt="Bladder tooling assembly cross-section" loading="lazy"></button><figcaption>Bladder tooling cross-section — cavity path (passenger car).</figcaption></figure>
+          <figure class="fig"><button type="button" data-cap="Full cross-section of the bladder tooling assembly within the press (2-wheel application)."><img src="images/image4.jpg" alt="Bladder tooling within press, cross-section" loading="lazy"></button><figcaption>Tooling assembly in the press (2-wheel).</figcaption></figure>
+          <figure class="fig"><button type="button" data-cap="Resulting curing bladder geometry — underside view."><img src="images/image7.jpg" alt="Curing bladder geometry, underside view" loading="lazy"></button><figcaption>Resulting curing bladder geometry.</figcaption></figure>
+        </div>
+      </div>
+    </article>
+
+    <!-- 02 Dog prosthesis -->
+    <article class="proj rv">
+      <div class="proj-head">
+        <span class="proj-no">DWG 02</span>
+        <h3>Personalized Prosthetic Leg for a Dog</h3>
+        <span class="proj-meta">UNIVERSITY OF NIŠ · 2019 · REVERSE ENGINEERING + 3D PRINT</span>
+      </div>
+      <div class="proj-body">
+        <div class="proj-text">
+          <p>Team project to design and build an external, easily fitted prosthesis for a dog (Adonis) that had lost part of a hind leg — chosen over an implant to avoid additional surgery.</p>
+          <h4>Reverse engineering the stump</h4>
+          <p>The residual limb was captured with a dental impression compound and cast in wax. Because the undercut surfaces couldn't be 3D-scanned in one pass, the positive was split into two lacquer-coated halves, scanned separately, and reverse-engineered in CAD: point cloud → polygon mesh → surface → solid reference geometry.</p>
+          <h4>Two-material design</h4>
+          <p>A flexible NinjaFlex upper socket grips the stump and flexes with movement; a rigid PLA lower foot mates precisely with it for durability. The fit, clamping, neck angle and ground-contact shape were refined over multiple fitting rounds on the dog itself.</p>
+          <a class="proj-link" href="https://drive.google.com/file/d/1IHl6gLP532DopIGcbp4cfRO3PV3xjW-V/view?usp=sharing" target="_blank" rel="noopener">FULL PAPER ↗</a>
+        </div>
+        <div class="proj-gallery g2">
+          <figure class="fig"><button type="button" data-cap="Real-world application of the prosthesis on Adonis."><img src="images/image8.jpg" alt="Dog wearing the finished prosthesis" loading="lazy"></button><figcaption>Real-world application on Adonis.</figcaption></figure>
+          <figure class="fig"><button type="button" data-cap="CAD assembly of the final prosthesis: flexible upper socket (orange) fitted to the rigid lower foot part (black)."><img src="images/image9.jpg" alt="CAD assembly of the prosthesis" loading="lazy"></button><figcaption>Final CAD assembly — flexible socket + rigid foot.</figcaption></figure>
+          <figure class="fig span2"><button type="button" data-cap="Alternate view of the prosthesis assembly, showing the socket-to-foot transition and clamping features."><img src="images/image10.jpg" alt="Alternate view of the prosthesis assembly" loading="lazy"></button><figcaption>Socket-to-foot transition and clamping features.</figcaption></figure>
+        </div>
+      </div>
+    </article>
+
+    <!-- 03 RobotStudio -->
+    <article class="proj rv">
+      <div class="proj-head">
+        <span class="proj-no">DWG 03</span>
+        <h3>Robotic Machine-Tending Cell</h3>
+        <span class="proj-meta">UNIVERSITY OF NIŠ · 2020 · ABB ROBOTSTUDIO + RAPID</span>
+      </div>
+      <div class="proj-body">
+        <div class="proj-text">
+          <p>Concept, build and simulation of a robotic cell that loads and unloads a CNC lathe. A Ø50 × 180 mm steel part arrives on a 3000 × 400 mm roller conveyor; a sensor signals the pickup, the robot loads the chuck, retracts during machining, then places the finished part in a collection bin.</p>
+          <p>My contribution covered robot and gripper selection, building and simulating the station in RobotStudio, and the basic I/O signal logic between robot, gripper and machine — including a working RAPID control program delivered with a full simulation video.</p>
+          <p>The write-up also identifies concrete improvements: moving door/chuck logic onto the CNC's own controller via M-code outputs, and replacing fixed wait-times in RAPID with real machine handshake signals.</p>
+          <a class="proj-link" href="https://drive.google.com/drive/folders/13NRd8Sdj7x2tPtyhm704HyFasu2KMUe6?usp=sharing" target="_blank" rel="noopener">PAPER + SIMULATION VIDEO ↗</a>
+        </div>
+        <div class="proj-gallery">
+          <figure class="fig"><button type="button" data-cap="RobotStudio simulation: robot, CNC lathe, conveyor and storage table built for the machine-tending task."><img src="images/image11.jpg" alt="ABB RobotStudio simulation of the machine tending cell" loading="lazy"></button><figcaption>The simulated cell — robot, lathe, conveyor, storage.</figcaption></figure>
+        </div>
+      </div>
+    </article>
+
+    <!-- 04 CAPP-CAM -->
+    <article class="proj rv">
+      <div class="proj-head">
+        <span class="proj-no">DWG 04</span>
+        <h3>CAPP-CAM: Pump Cover Process Plan</h3>
+        <span class="proj-meta">MASTER'S STUDIES · 2020 · 3-AXIS HMC, 2 SETUPS</span>
+      </div>
+      <div class="proj-body">
+        <div class="proj-text">
+          <p>From a supplied STEP model of a pump cover to a manufacturable model, full technical drawing set, two-stage CNC workholding design and complete process-planning documentation — tooling, cutting data, machine and gauge selection.</p>
+          <h4>Stock &amp; workholding</h4>
+          <p>Raw stock sized from the 200 × 146 × 45 mm envelope plus milling and clamping allowances (205 × 151 × 54 mm flat steel bar). Designed a dedicated single-sided angle tombstone fixture: eight blanks clamped in a grid on the machine's rotary table for the first setup, then re-clamped on a second base plate for reverse-side operations. Every base plate, clamp plate and fastener carries its own drawing and BOM.</p>
+          <a class="proj-link" href="https://drive.google.com/drive/folders/1552ypHwSYY21XH3N4JYRNHEM0d9N7nXI?usp=drive_link" target="_blank" rel="noopener">PAPER + SIMULATION VIDEO ↗</a>
+        </div>
+        <div class="proj-gallery g2">
+          <figure class="fig span2"><button type="button" data-cap="Supplied STEP model of the pump cover — the starting geometry for the drawing set and process plan."><img src="images/image12.jpg" alt="STEP model of the pump cover" loading="lazy"></button><figcaption>Starting geometry — supplied STEP pump cover.</figcaption></figure>
+          <figure class="fig"><button type="button" data-cap="First-setup workholding: eight pump-cover blanks clamped on the angle tombstone fixture, mounted on the rotary table."><img src="images/image13.jpg" alt="First setup tombstone workholding" loading="lazy"></button><figcaption>Setup 1 — eight blanks on the angle tombstone.</figcaption></figure>
+          <figure class="fig"><button type="button" data-cap="Second-setup workholding, after re-clamping on the second base plate for reverse-side operations."><img src="images/image14.jpg" alt="Second setup workholding" loading="lazy"></button><figcaption>Setup 2 — re-clamped for reverse-side ops.</figcaption></figure>
+        </div>
+      </div>
+    </article>
+
+    <!-- 05 FEA -->
+    <article class="proj rv">
+      <div class="proj-head">
+        <span class="proj-no">DWG 05</span>
+        <h3>FEA: Static, Thermal &amp; Optimization Study</h3>
+        <span class="proj-meta">MASTER'S COURSEWORK · ANSYS WORKBENCH</span>
+      </div>
+      <div class="proj-body">
+        <div class="proj-text">
+          <h4>Static structural</h4>
+          <p>Half-symmetry model of a bolted bracket with frictionless supports replacing removed screws; "No Separation" contact kept the solver linear while still permitting small slip. Automatic mesh refinement (5% convergence criterion) stabilized after four passes: safety factor <strong>1.52</strong> against yield vs. a 1.25 target — a clear optimization candidate.</p>
+          <h4>Thermo-structural coupling</h4>
+          <p>Steady-state thermal load (120 °C at the bolt face, natural convection, 23 °C ambient) fed into a duplicated structural run. The combined loading pushed the countersunk-hole region to roughly 4× yield — proving the part needed a design change (lower-conductivity material, different joint, or a relief groove) to survive its thermal duty cycle.</p>
+          <a class="proj-link" href="https://docs.google.com/document/d/1gzN-KleRWwZfYVChxKFXEs3KmOG3f3z3/edit?usp=sharing&ouid=102947587143822960502&rtpof=true&sd=true" target="_blank" rel="noopener">FULL PAPER ↗</a>
+        </div>
+        <div class="proj-gallery g2">
+          <figure class="fig span2"><button type="button" data-cap="The bracket-and-bolt assembly used throughout the study: loaded bolt (right) and wall-mounting bracket (left)."><img src="images/image15.jpg" alt="Bracket and bolt assembly" loading="lazy"></button><figcaption>Bracket-and-bolt assembly under study.</figcaption></figure>
+          <figure class="fig"><button type="button" data-cap="Converged equivalent (von Mises) stress; critical zone at the concave fillet of the cantilevered arm."><img src="images/image16.jpg" alt="Von Mises stress plot" loading="lazy"></button><figcaption>Converged von Mises stress — fillet critical zone.</figcaption></figure>
+          <figure class="fig"><button type="button" data-cap="Combined thermal + mechanical deformation: highest stress concentration at the countersunk-hole region."><img src="images/image17.jpg" alt="Thermo-structural deformation plot" loading="lazy"></button><figcaption>Thermal + mechanical case — countersunk holes critical.</figcaption></figure>
+        </div>
+      </div>
+    </article>
+
+    <!-- 06 Thesis -->
+    <article class="proj rv">
+      <div class="proj-head">
+        <span class="proj-no">DWG 06</span>
+        <h3>Master's Thesis: RTM Mold Tooling for a CT-Scanner Panel</h3>
+        <span class="proj-meta">UNIVERSITY OF NIŠ · CAD → CAM → MACHINED MOLD SET</span>
+      </div>
+      <div class="proj-body">
+        <div class="proj-text">
+          <p>Full path from a composite housing panel's CAD model to a machined, ready-to-use RTM mold set: part simplification for tooling, female + segmented male mold design, and CNC machining of both halves from MDF on a 3-axis router.</p>
+          <h4>Beating the undercut</h4>
+          <p>The panel's wrap-around shape creates a global undercut that would lock a one-piece male tool inside the part — so the male form was split into <strong>nine segments</strong>, each seated at a 5° draft against its neighbors on a common mounting plate, with every parting line on a straight edge for clean extraction after each shot.</p>
+          <h4>Machining &amp; cutting data</h4>
+          <p>The ~1.1 × 1.0 m female cavity was machined in two setups with toe clamps; down-cut carbide router bits (Ø20/Ø12.7/Ø5) plus a Ø6 ball-nose for profiled surfaces, 10,000–18,000 rpm, finishing stepovers down to 0.01–0.2 mm on the A-surface that directly shapes the finished composite part.</p>
+          <a class="proj-link" href="https://drive.google.com/file/d/1__6vBfl_hPPIckd66QqhREQYoxj6Vusl/view?usp=sharing" target="_blank" rel="noopener">FULL THESIS ↗</a>
+        </div>
+        <div class="proj-gallery g2">
+          <figure class="fig span2"><button type="button" data-cap="The part to be molded: the lower housing panel of a CT-scanner enclosure, in full design intent."><img src="images/image18.jpg" alt="CT scanner lower housing panel CAD model" loading="lazy"></button><figcaption>The molded part — CT-scanner lower housing panel.</figcaption></figure>
+          <figure class="fig"><button type="button" data-cap="The nine-segment male mold, color-coded by segment, on its common backing plate to clear the undercut."><img src="images/image19.jpg" alt="Nine segment male mold" loading="lazy"></button><figcaption>Nine-segment male mold on backing plate.</figcaption></figure>
+          <figure class="fig"><button type="button" data-cap="The 3-axis portal CNC router used to machine both mold halves (1500 × 1200 mm travel, 25,000 rpm, 0.01 mm accuracy)."><img src="images/image21.jpg" alt="3-axis portal CNC router" loading="lazy"></button><figcaption>3-axis portal router used for both halves.</figcaption></figure>
+        </div>
+      </div>
+    </article>
+
+    <!-- 07 Embedded -->
+    <article class="proj rv">
+      <div class="proj-head">
+        <span class="proj-no">DWG 07</span>
+        <h3>Embedded Electronics &amp; Robotics</h3>
+        <span class="proj-meta">PERSONAL PROJECTS · 2025 · ARDUINO + RASPBERRY PI</span>
+      </div>
+      <div class="proj-body">
+        <div class="proj-text">
+          <p>Self-initiated projects building hands-on skill in microcontroller programming, sensor integration and basic mechatronics — all designed, wired and programmed from scratch.</p>
+          <h4>Obstacle-avoiding robot (Arduino)</h4>
+          <p>Two-wheeled autonomous robot: HC-SR04 ultrasonic sensor, dual DC motor drive, battery-powered. Continuous distance measurement triggers stop-and-turn logic written and tuned in C/C++.</p>
+          <h4>Distance warning system (Arduino Uno)</h4>
+          <p>Ultrasonic proximity device with a 16×2 LCD (parallel mode) and warning LEDs — structured around non-blocking timing so display refresh and warning logic run independently.</p>
+          <h4>Motion-activated light (Raspberry Pi)</h4>
+          <p>PIR sensor + LED output controlled by a Python GPIO script running as a standalone service.</p>
+        </div>
+        <div class="proj-gallery g2">
+          <figure class="fig"><button type="button" data-cap="The assembled robot: ultrasonic sensor front, controller and motor-driver boards on the chassis, battery pack rear."><img src="images/image22.jpg" alt="Assembled obstacle avoiding robot" loading="lazy"></button><figcaption>Obstacle-avoiding robot, assembled.</figcaption></figure>
+          <figure class="fig"><button type="button" data-cap="Live demo: LCD shows measured distance and refresh rate while warning LEDs respond to an approaching object."><img src="images/image23.jpg" alt="Distance warning system with LCD" loading="lazy"></button><figcaption>Distance warning system — live reading on LCD.</figcaption></figure>
+          <figure class="fig span2"><button type="button" data-cap="Raspberry Pi setup with PIR sensor; LED lit after detecting motion."><img src="images/image24.jpg" alt="Raspberry Pi motion activated light" loading="lazy"></button><figcaption>Motion-activated light on Raspberry Pi.</figcaption></figure>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="sec-head">
+      <span class="sec-zone">C1</span>
+      <h2 class="sec-title">Technical skills</h2>
+      <span class="sec-note">PARTS LIST / BILL OF CAPABILITIES</span>
+    </div>
+    <table class="bom">
+      <thead><tr><th>Item</th><th>Category</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td class="it">001</td><td class="cat">CAD / 3D Modeling</td><td class="desc">SolidWorks · Siemens NX · CATIA · PTC Creo · Autodesk Inventor — complex surface and solid modeling</td></tr>
+        <tr><td class="it">002</td><td class="cat">2D Docs &amp; GD&amp;T</td><td class="desc">AutoCAD · SolidWorks · Siemens NX — engineering drawings with ISO tolerances and GD&amp;T</td></tr>
+        <tr><td class="it">003</td><td class="cat">Simulation &amp; Analysis</td><td class="desc">Structural &amp; thermal FEA — SolidWorks Simulation, ANSYS Workbench (academic)</td></tr>
+        <tr><td class="it">004</td><td class="cat">PLM / ERP / PDM</td><td class="desc">Dassault 3DEXPERIENCE · Teamcenter · Autodesk Vault · SAP</td></tr>
+        <tr><td class="it">005</td><td class="cat">Manufacturing</td><td class="desc">Sheet metal &amp; flat patterns · laser-cut prep · thin-wall tube bending · mold design · CNC programming · CAM (CATIA) · 3D printing</td></tr>
+        <tr><td class="it">006</td><td class="cat">Programming &amp; Electronics</td><td class="desc">C# / .NET · Python · C++ · Arduino · Raspberry Pi · basic electronics</td></tr>
+        <tr><td class="it">007</td><td class="cat">Collaboration</td><td class="desc">Microsoft Office · cross-functional international team collaboration (EN — C1)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- EDUCATION -->
+  <section id="education">
+    <div class="sec-head">
+      <span class="sec-zone">D1</span>
+      <h2 class="sec-title">Education &amp; publications</h2>
+    </div>
+    <div class="edu-grid">
+      <div>
+        <div class="edu-item rv">
+          <h3>MSc — Production &amp; Information Technology</h3>
+          <p class="where">University of Niš, Faculty of Mechanical Engineering</p>
+          <p class="when">2019 — 2020</p>
+        </div>
+        <div class="edu-item rv">
+          <h3>BSc with Honors — Mechanical Engineering</h3>
+          <p class="where">University of Niš, Faculty of Mechanical Engineering</p>
+          <p class="when">2015 — 2019</p>
+        </div>
+        <div class="edu-item rv">
+          <h3>Technician for Computer Control (CNC)</h3>
+          <p class="where">Technical School, Pirot</p>
+          <p class="when">2011 — 2015</p>
+        </div>
+        <p class="smallnote"><b>Additional:</b> Microsoft Developer Certificate (LINK Group) · Category B driving license · Open to relocation within the EU</p>
+      </div>
+      <div>
+        <div class="pub rv">Aranđelović, Drašković, Turudija, <strong>Dimitrov</strong>, Božić, Korunović, Trajanović — <em>Towards a Methodology for CAD Program Efficiency Assessment</em><span class="conf">MASING 2018 · Niš, Serbia · ISBN 978-86-6055-103-2</span></div>
+        <div class="pub rv">Aranđelović, Drašković, Turudija, <strong>Dimitrov</strong>, Božić, Korunović, Mišić, Trajanović — <em>Trial Experimental Determination of the Average Times of Actions Executed in a CAD Application</em><span class="conf">ICPE-S 2018 · Kragujevac, Serbia</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact">
+    <div class="sec-head">
+      <span class="sec-zone" style="background:var(--red)">E1</span>
+      <h2 class="sec-title">Let's build something</h2>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-cell"><span class="k">E-mail</span><a href="mailto:marko.dimitrov96@gmail.com">marko.dimitrov96@gmail.com</a></div>
+      <div class="contact-cell"><span class="k">Phone</span><a href="tel:+381605156100">+381 60 51 56 100</a></div>
+      <div class="contact-cell"><span class="k">LinkedIn</span><a href="https://www.linkedin.com/in/marko-dimitrov-b28629239/" target="_blank" rel="noopener">/in/marko-dimitrov ↗</a></div>
+      <div class="contact-cell"><span class="k">Base / mobility</span><span class="plain">Pirot, RS → open to EU relocation</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>MARKO DIMITROV · MECHANICAL DESIGN ENGINEER</span>
+    <span>SHEET 1 OF 1 · REV C · © 2026</span>
+  </footer>
+</div>
+
+<!-- lightbox -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Enlarged figure">
+  <button class="x" type="button" id="lbClose">CLOSE [ESC]</button>
+  <img id="lbImg" src="" alt="">
+  <p class="cap" id="lbCap"></p>
+</div>
+
+<script>
+// lightbox
+const lb=document.getElementById('lb'),lbImg=document.getElementById('lbImg'),lbCap=document.getElementById('lbCap');
+let lastFocus=null;
+document.querySelectorAll('.fig button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    lastFocus=b;
+    lbImg.src=b.querySelector('img').src;
+    lbImg.alt=b.querySelector('img').alt;
+    lbCap.textContent=b.dataset.cap||'';
+    lb.classList.add('open');
+    document.getElementById('lbClose').focus();
+  });
+});
+function closeLB(){lb.classList.remove('open');lbImg.src='';if(lastFocus)lastFocus.focus();}
+lb.addEventListener('click',e=>{if(e.target===lb||e.target===lbImg)closeLB();});
+document.getElementById('lbClose').addEventListener('click',closeLB);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&lb.classList.contains('open'))closeLB();});
+
+// scroll reveal
+const prefersReduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!prefersReduced&&'IntersectionObserver'in window){
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+  },{threshold:.08});
+  document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+}else{
+  document.querySelectorAll('.rv').forEach(el=>el.classList.add('in'));
+}
+</script>
+</body>
+</html>
